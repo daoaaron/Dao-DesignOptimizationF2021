@@ -1,8 +1,18 @@
 import numpy as np
-#region Our Functions.
-objfun= lambda x: (x[0]+1)**2 + (x[1])**2 + (x[3]-1)**2
+#region Our Functions! ------------------
+objfun= lambda x: (x[0]+1)**2 + (x[1])**2 + (x[2]-1)**2
 grad = lambda x: np.array([[2*(x[0]+1)],[2*x[1]],[2*(x[2]-1)]])
+# A test ------------------------
+g=grad(np.array([[1,5,3]]).T)
 #endregion
 
-g=grad(np.array([[1,5,3]]).T)
-print(g)  # Hey look it works.
+# SETUP.
+x0 = np.array([[1,2,3]]).T # Initial guess.
+x_solve = [x0]
+x= x_solve[0]
+a= 0.01
+
+while e > .001:
+    x= x - a*grad(x)
+    x_solve.append(x)
+    e = np.linalg.norm(grad(x))
