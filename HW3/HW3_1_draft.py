@@ -10,8 +10,11 @@ import torch as t
 from torch.autograd import Variable
 import numpy as np
 
-p_satw=28.824099527405245 #10**(8.071 - 1730.63/(20+233.426))
-p_sat14=17.460784103526855  #17.4610**(7.43155 - 1554.679/(20+240.337))
+p_satw=10**(8.071 - 1730.63/(20+233.426)) # 17.460784103526855 
+p_sat14=10**(7.43155 - 1554.679/(20+240.337))   # 28.824099527405245
+
+print(p_satw)
+print(p_sat14)
 x=[ 0.0 , 0.1 , 0.2 , 0.3 , 0.4 , 0.5 , 0.6 , 0.7 , 0.8 , 0.9 , 1.0 ]
 p=[ 28.1 , 34.4 , 36.7 , 36.9 , 36.8 , 36.7 , 36.5 , 35.4 , 32.9 , 27.7 , 17.5 ]
 #%% The FUNCTIONS.
@@ -62,4 +65,14 @@ while e > 0.1:
         
 print(a.data.numpy())
 print(objective.data.numpy())
+#%% Well, time to calculate these new p values.
+
+a_solve=a.data
+
+print('Data Pressure - Model Pressures')
+for i in range(len(x)):
+    print(str(p[i]) + ' --- ' + str(press(a_solve,x[i]).item()))
+    
 #%%
+print(max([abs(press(a_solve, x[i]).item()-p[i])] for i in range(len(x))))
+a=([press(a_solve, x[i]).item()] for i in range(len(x)))
