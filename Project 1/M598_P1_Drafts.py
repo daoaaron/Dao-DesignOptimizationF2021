@@ -25,6 +25,7 @@ logger = logging.getLogger(__name__)
 FRAME_TIME = 0.1  # time interval
 GRAVITY_ACCEL = 0.12  # gravity constant
 BOOST_ACCEL = 0.18  # thrust constant
+DRAG_CONST = 0.2 # All Cv, rho, area, and 0.5 multiplied together, divided by mass.
 
 # # the following parameters are not being used in the sample code
 # PLATFORM_WIDTH = 0.25  # landing platform width
@@ -33,12 +34,6 @@ BOOST_ACCEL = 0.18  # thrust constant
 
 #%% SYSTEM DYNAMICS.
 
-
-# Notes: 
-# 0. You only need to modify the "forward" function
-# 1. All variables in "forward" need to be PyTorch tensors.
-# 2. All math operations in "forward" has to be differentiable, e.g., default PyTorch functions.
-# 3. Do not use inplace operations, e.g., x += 1. Please see the following section for an example that does not work.
 
 class Dynamics(nn.Module):  # An object to keep all system dynamics.
 
@@ -55,18 +50,17 @@ class Dynamics(nn.Module):  # An object to keep all system dynamics.
         """
         
         # Apply gravity
-        # Note: Here gravity is used to change velocity which is the second element of the state vector
-        # Normally, we would do x[1] = x[1] + gravity * delta_time
-        # but this is not allowed in PyTorch since it overwrites one variable (x[1]) that is part of the computational graph to be differentiated.
-        # Therefore, I define a tensor dx = [0., gravity * delta_time], and do x = x + dx. This is allowed... 
         delta_state_gravity = t.tensor([0., GRAVITY_ACCEL * FRAME_TIME])
+        
+        # We gotta add DRAG HERE TOO!!!!
+        delta_state_DRAG = t.tensor([0., 1*DRAG_CONST * state[1]**2 * FRAME_TIME])  # Drag is a function of v^2.
+
 
         # Thrust
-        # Note: Same reason as above. Need a 2-by-1 tensor.
         delta_state = BOOST_ACCEL * FRAME_TIME * t.tensor([0., -1.]) * action
 
         # Update velocity
-        state = state + delta_state + delta_state_gravity
+        state = state + delta_state + delta_state_gravity + delta_state_DRAG
         
         # Update state
         # Note: Same as above. Use operators on matrices/tensors as much as possible. Do not use element-wise operators as they are considered inplace.
@@ -102,6 +96,7 @@ class Controller(nn.Module):
 
     def forward(self, state):
         action = self.network(state)
+        #print(action)
         return action
 
 #%% the simulator that rolls out x(1), x(2), ..., x(T)
