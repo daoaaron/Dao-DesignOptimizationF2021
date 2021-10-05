@@ -21,7 +21,7 @@ def loos(x):
     sum1= (x[0] + b[0])**2
     sum2=(x[1] - b[1])**2
     return sum1 + sum2
-
+#%%
 # Start gradient descent
 for i in range(1000):  # TODO: change the termination criterion
     loss = loos(x)
@@ -63,7 +63,7 @@ def loos(x):
 #%%
 
 # Start gradient descent
-for i in range(1000):  # TODO: change the termination criterion
+for i in range(20):  # TODO: change the termination criterion
     loss = loos(x)
     loss.backward()
     print(loss.data.numpy())
