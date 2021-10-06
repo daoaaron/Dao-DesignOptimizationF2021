@@ -89,8 +89,11 @@ class Controller(nn.Module):
         self.network = nn.Sequential(
             nn.Linear(dim_input, dim_hidden),
             nn.Tanh(),
+            nn.Linear(dim_hidden, dim_hidden),
+            # You can add more layers here. DO IT
+            nn.Tanh(),
             nn.Linear(dim_hidden, dim_output),
-            # You can add more layers here
+            # yeah we added another.
             nn.Sigmoid()
         )
 
@@ -168,6 +171,9 @@ class Optimize:
         x = data[:, 0]
         y = data[:, 1]
         plt.plot(x, y)
+        plt.ylabel('Velocity')
+        plt.xlabel('Distance')
+        plt.title('Trajectory')
         plt.show()
         
 #%% Now it's time to run the code!

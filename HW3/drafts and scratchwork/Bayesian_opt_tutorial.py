@@ -169,7 +169,7 @@ def bayesian_optimisation(n_iters, sample_loss, bounds, x0=None, n_pre_samples=5
 
         # Update lists
         x_list.append(next_sample)
-        y_list.append(cv_score)
+        y_list.append(cv_score)  # Y basically stores the updated scores of the 'next sample'.
 
         # Update xp and yp
         xp = np.array(x_list)
@@ -184,25 +184,44 @@ data, target = make_classification(n_samples=23,
                                    n_redundant=1)
 
 # Our loss function. OBJECTIVE FUNCTION!!!!
-def sample_loss(params):
-    return cross_val_score(SVC(C=10 ** params[0], gamma=10 ** params[1], random_state=12345),
-                           X=data, y=target, scoring='roc_auc', cv=3).mean()
-
+# =============================================================================
+# def sample_loss(params):
+#     return cross_val_score(SVC(C=10 ** params[0], gamma=10 ** params[1], random_state=12345),
+#                            X=data, y=target, scoring='roc_auc', cv=3).mean()
+# 
+# =============================================================================
 
 # Let's make another one.
-def loss(x): # takes in a vector [x1,x2]
+def sample_loss(x): # takes in a vector [x1,x2]
     x1=x[0]
     x2=x[1]
     return  (4 - 2.1*x1**2 + (x1**4)/3)*x1**2 + x1*x2 + (-4 + 4*(x2**2))*x2**2  
 
 #%% Start runnin'
-x1 = np.linspace(-3,3)
-x2 = np.linspace(-2,2)
+x_1 = np.linspace(-3,3)
+x_2 = np.linspace(-2,2)
 
 # We need the cartesian combination of these two vectors
-param_grid = np.array([[x1i, x2i] for x1i in x1 for x2i in x2])
+param_grid = np.array([[x1i, x2i] for x1i in x_1 for x2i in x_2])
 
-real_loss = [loss(params) for params in param_grid]
+real_loss = [sample_loss(params) for params in param_grid]
 
 # The maximum is at:
 print('The optimized values for x1 and x2 are '+ str(param_grid[np.array(real_loss).argmin(), :]))
+
+
+#%% And something else?
+bounds = np.array([[-3, 3], [-2, 2]])
+
+print('running bayesopt.')
+
+xp, yp = bayesian_optimisation(n_iters=30, 
+                               sample_loss=sample_loss, 
+                               bounds=bounds,
+                               n_pre_samples=3,
+                               random_search=100000)
+#print(xp[32])
+#print(yp[32])
+
+#print('the minimum is at ' + str(xp[np.where(yp == np.amin(yp))[0][0]]))
+#%%
