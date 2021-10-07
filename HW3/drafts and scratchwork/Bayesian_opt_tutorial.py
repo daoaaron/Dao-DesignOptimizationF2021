@@ -9,9 +9,32 @@ import sklearn.gaussian_process as gp
 
 from scipy.stats import norm
 from scipy.optimize import minimize
-from sklearn.model_selection import cross_val_score
-from sklearn.svm import SVC
 from sklearn.datasets import make_classification
+
+
+#%% Um we might need a better GP module.
+
+#from functools import partial
+from sklearn.gaussian_process import GaussianProcessRegressor
+import scipy.optimize
+
+class MyGPR(GaussianProcessRegressor):
+    def __init__(self, *args, max_iter=15000, **kwargs):
+        super().__init__(*args, **kwargs)
+        self._max_iter = max_iter
+
+    def _constrained_optimization(self, obj_func, initial_theta, bounds):
+        def new_optimizer(obj_func, initial_theta, bounds):
+            return scipy.optimize.minimize(
+                obj_func,
+                initial_theta,
+                method="L-BFGS-B",
+                jac=True,
+                bounds=bounds,
+                max_iter=self._max_iter,
+            )
+        self.optimizer = new_optimizer
+        return super()._constrained_optimization(obj_func, initial_theta, bounds)
 
 #%% EXPECTED IMPROVEMENT function.
 
@@ -140,12 +163,20 @@ def bayesian_optimisation(n_iters, sample_loss, bounds, x0=None, n_pre_samples=5
 
     # Create the GP
     if gp_params is not None:
+        #model = MyGPR(**gp_params)
         model = gp.GaussianProcessRegressor(**gp_params)
     else:
         kernel = gp.kernels.Matern()
+# =============================================================================
+#         model = MyGPR(kernel=kernel,
+#                                             alpha=alpha,
+#                                             n_restarts_optimizer=10,
+#                                             normalize_y=True)
+# 
+# =============================================================================
         model = gp.GaussianProcessRegressor(kernel=kernel,
-                                            alpha=alpha,
-                                            n_restarts_optimizer=10,
+                                           alpha=alpha,
+                                           n_restarts_optimizer=10,
                                             normalize_y=True)
 
     for n in range(n_iters):
@@ -206,8 +237,8 @@ param_grid = np.array([[x1i, x2i] for x1i in x_1 for x2i in x_2])
 
 real_loss = [sample_loss(params) for params in param_grid]
 
-# The maximum is at:
-print('The optimized values for x1 and x2 are '+ str(param_grid[np.array(real_loss).argmin(), :]))
+# The minimum is at:
+print('The minimum value of ' + str(np.amin(real_loss)) +' is at '+ str(param_grid[np.array(real_loss).argmin(), :]))
 
 
 #%% And something else?
@@ -215,7 +246,7 @@ bounds = np.array([[-3, 3], [-2, 2]])
 
 print('running bayesopt.')
 
-xp, yp = bayesian_optimisation(n_iters=30, 
+xp, yp = bayesian_optimisation(n_iters=55, 
                                sample_loss=sample_loss, 
                                bounds=bounds,
                                n_pre_samples=3,
@@ -223,5 +254,5 @@ xp, yp = bayesian_optimisation(n_iters=30,
 #print(xp[32])
 #print(yp[32])
 
-#print('the minimum is at ' + str(xp[np.where(yp == np.amin(yp))[0][0]]))
+print('the minimum value of ' + str(np.amin(yp)) +' is at ' + str(xp[np.where(yp == np.amin(yp))[0][0]]))
 #%%
