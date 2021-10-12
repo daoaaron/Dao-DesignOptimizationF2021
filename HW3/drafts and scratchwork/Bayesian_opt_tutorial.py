@@ -205,14 +205,17 @@ def bayesian_optimisation(n_iters, sample_loss, bounds, x0=None, n_pre_samples=5
         # Update xp and yp
         xp = np.array(x_list)
         yp = np.array(y_list)
+        #print('.')
 
     return xp, yp
 
 #%% Let's set up for running.
-data, target = make_classification(n_samples=23,
-                                   n_features=4,
-                                   n_informative=3,
-                                   n_redundant=1)
+# =============================================================================
+# data, target = make_classification(n_samples=23,
+#                                    n_features=4,
+#                                    n_informative=3,
+#                                    n_redundant=1)
+# =============================================================================
 
 # Our loss function. OBJECTIVE FUNCTION!!!!
 # =============================================================================
@@ -246,7 +249,7 @@ bounds = np.array([[-3, 3], [-2, 2]])
 
 print('running bayesopt.')
 
-xp, yp = bayesian_optimisation(n_iters=55, 
+xp, yp = bayesian_optimisation(n_iters=100, 
                                sample_loss=sample_loss, 
                                bounds=bounds,
                                n_pre_samples=3,
@@ -256,3 +259,17 @@ xp, yp = bayesian_optimisation(n_iters=55,
 
 print('the minimum value of ' + str(np.amin(yp)) +' is at ' + str(xp[np.where(yp == np.amin(yp))[0][0]]))
 #%%
+# Try a loop!
+print('running bayesopt.')
+
+min_yp=0
+while min_yp > -.95:
+    xp, yp = bayesian_optimisation(n_iters=50, 
+                               sample_loss=sample_loss, 
+                               bounds=bounds,
+                               n_pre_samples=3,
+                               random_search=100000)
+    min_yp=np.amin(yp)
+    print(min_yp)
+    
+print('the minimum value of ' + str(np.amin(yp)) +' is at ' + str(xp[np.where(yp == np.amin(yp))[0][0]]))
