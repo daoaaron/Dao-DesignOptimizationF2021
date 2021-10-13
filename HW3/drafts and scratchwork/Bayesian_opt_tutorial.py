@@ -245,11 +245,13 @@ print('The minimum value of ' + str(np.amin(real_loss)) +' is at '+ str(param_gr
 
 
 #%% And something else?
+import warnings
+warnings.filterwarnings('ignore')
 bounds = np.array([[-3, 3], [-2, 2]])
 
 print('running bayesopt.')
 
-xp, yp = bayesian_optimisation(n_iters=100, 
+xp, yp = bayesian_optimisation(n_iters=300, 
                                sample_loss=sample_loss, 
                                bounds=bounds,
                                n_pre_samples=3,
