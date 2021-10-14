@@ -229,7 +229,7 @@ def bayesian_optimisation(n_iters, sample_loss, bounds, x0=None, n_pre_samples=5
 def sample_loss(x): # takes in a vector [x1,x2]
     x1=x[0]
     x2=x[1]
-    return  (4 - 2.1*x1**2 + (x1**4)/3)*x1**2 + x1*x2 + (-4 + 4*(x2**2))*x2**2  
+    return  -1*((4 - 2.1*x1**2 + (x1**4)/3)*x1**2 + x1*x2 + (-4 + 4*(x2**2))*x2**2  )
 
 #%% Start runnin'
 x_1 = np.linspace(-3,3)
@@ -241,7 +241,7 @@ param_grid = np.array([[x1i, x2i] for x1i in x_1 for x2i in x_2])
 real_loss = [sample_loss(params) for params in param_grid]
 
 # The minimum is at:
-print('The minimum value of ' + str(np.amin(real_loss)) +' is at '+ str(param_grid[np.array(real_loss).argmin(), :]))
+print('The min value of ' + str(-np.amax(real_loss)) +' is at '+ str(param_grid[np.array(real_loss).argmax(), :]))
 
 
 #%% And something else?
@@ -251,7 +251,7 @@ bounds = np.array([[-3, 3], [-2, 2]])
 
 print('running bayesopt.')
 
-xp, yp = bayesian_optimisation(n_iters=300, 
+xp, yp = bayesian_optimisation(n_iters=100, 
                                sample_loss=sample_loss, 
                                bounds=bounds,
                                n_pre_samples=3,
@@ -259,7 +259,7 @@ xp, yp = bayesian_optimisation(n_iters=300,
 #print(xp[32])
 #print(yp[32])
 
-print('the minimum value of ' + str(np.amin(yp)) +' is at ' + str(xp[np.where(yp == np.amin(yp))[0][0]]))
+print('the min value of ' + str(-np.amax(yp)) +' is at ' + str(xp[np.where(yp == np.amax(yp))[0][0]]))
 #%%
 # Try a loop!
 print('running bayesopt.')
