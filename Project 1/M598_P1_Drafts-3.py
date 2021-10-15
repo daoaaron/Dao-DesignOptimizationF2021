@@ -177,12 +177,13 @@ class Optimize:
     def train(self, epochs):
         for epoch in range(epochs):
             loss = self.step()
+            self.loss=loss
             print('[%d] loss: %.3f' % (epoch + 1, loss))
             self.visualize(epoch+1)
 
     def visualize(self, ep):
         data = np.array([self.simulation.state_trajectory[i].detach().numpy() for i in range(self.simulation.T)]) # data(a,b,c) where a is the timestep, b is the trajectory (from 0 to N), and c is the state element (x,y,xdot, ydot)
-        fig, (ax1,ax2) = plt.subplots(1, 2)
+        fig, (ax1,ax2) = plt.subplots(1, 2,figsize=(9,5))
         for i in range(len(data[1,:,1])): # Over the number of trajectories.
             x = data[:,i,:][:,0] # The x position of the i trajectory.
             y = data[:,i,:][:,1] # y position of i trajectory
@@ -191,8 +192,10 @@ class Optimize:
             ax1.plot(x,y)
             ax2.plot(dxdt)
             ax2.plot(dydt)
-            ax1.set_title('[%d] Trajectory (km)' % (ep))
+            ax1.set_title('[%d] Trajectory (km). Loss = [%.4g]' % (ep,self.loss))
             ax2.set_title('Velocity (km/s) over time')
+            ax1.xlabel('meters')
+            ax1.ylabel('meters')
         
         
 # =============================================================================
