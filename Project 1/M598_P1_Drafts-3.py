@@ -65,7 +65,7 @@ class Dynamics(nn.Module):  # An object to keep all system dynamics.
             
             delta_state_matrix.append(delta_state) # So we should get N rows.
         
-        delt_state_mat_t=t.stack(delta_state_matrix)
+        delt_state_mat_t=t.stack(delta_state_matrix)  # STACK. What a powerful function.
                
        
         # Update VELOCITY. ( Not position. )
@@ -181,19 +181,23 @@ class Optimize:
             self.visualize(epoch+1)
 
     def visualize(self, ep):
-        data = np.array([self.simulation.state_trajectory[i].detach().numpy() for i in range(self.simulation.T)])
-        x = data[:, 0] # First column. 
-        y = data[:, 1] # Second column. 
-        dxdt= data[:,2]
-        dydt=data[:,3]
-        fig, (ax1,ax2) = plt.subplots(1, 2)
-        ax1.plot(x, y)
-        ax1.set_title('[%d] Trajectory (km)' % (ep))
-        #plt.plot(x, y)
-        ax2.plot(dxdt)
-        ax2.plot(dydt)
-        ax2.set_title('Velocity (km/s) over time')
-
+        data = np.array([self.simulation.state_trajectory[i].detach().numpy() for i in range(self.simulation.T)]) # data(a,b,c) where a is the timestep, b is the trajectory (from 0 to N), and c is the state element (x,y,xdot, ydot)
+        for i in range(len(data[1,:,1])): # Over the number of trajectories.
+            x = data[:,i,:][:,0] # The x position of the i trajectory.
+            y = data[:,i,:][:,1] # y position of i trajectory
+            plt.plot(x,y)
+# =============================================================================
+#         dxdt= data[:,2]
+#         dydt=data[:,3]
+#         fig, (ax1,ax2) = plt.subplots(1, 2)
+#         ax1.plot(x, y)
+#         ax1.set_title('[%d] Trajectory (km)' % (ep))
+#         #plt.plot(x, y)
+#         ax2.plot(dxdt)
+#         ax2.plot(dydt)
+#         ax2.set_title('Velocity (km/s) over time')
+# 
+# =============================================================================
         plt.show()
         
 #%% Now it's time to run the code!
