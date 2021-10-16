@@ -183,33 +183,23 @@ class Optimize:
 
     def visualize(self, ep):
         data = np.array([self.simulation.state_trajectory[i].detach().numpy() for i in range(self.simulation.T)]) # data(a,b,c) where a is the timestep, b is the trajectory (from 0 to N), and c is the state element (x,y,xdot, ydot)
-        fig, (ax1,ax2) = plt.subplots(1, 2,figsize=(9,5))
+        t=np.arange(0,T*FRAME_TIME,FRAME_TIME) # somethin to plot
+        fig, (ax1,ax2) = plt.subplots(1, 2,figsize=(13,5))
         for i in range(len(data[1,:,1])): # Over the number of trajectories.
             x = data[:,i,:][:,0] # The x position of the i trajectory.
             y = data[:,i,:][:,1] # y position of i trajectory
-            dxdt=data[:,i,:][:,2] # x velocity
-            dydt=data[:,i,:][:,3] # y velocity 
+            dxdt=1000*data[:,i,:][:,2] # x velocity (m/s)
+            dydt=1000*data[:,i,:][:,3] # y velocity (m/s)
             ax1.plot(x,y)
-            ax2.plot(dxdt)
-            ax2.plot(dydt)
+            ax2.plot(t,dxdt)
+            ax2.plot(t,dydt)
             ax1.set_title('[%d] Trajectory (km). Loss = [%.4g]' % (ep,self.loss))
-            ax2.set_title('Velocity (km/s) over time')
-            ax1.xlabel('meters')
-            ax1.ylabel('meters')
+            ax2.set_title('Velocity (m/s) over time')
+            ax1.set(xlabel='km',ylabel='km')
+            ax2.set(xlabel='time (s)',ylabel='Velocity (m/s)')
         
         
-# =============================================================================
-#         dxdt= data[:,2]
-#         dydt=data[:,3]
-#         fig, (ax1,ax2) = plt.subplots(1, 2)
-#         ax1.plot(x, y)
-#         ax1.set_title('[%d] Trajectory (km)' % (ep))
-#         #plt.plot(x, y)
-#         ax2.plot(dxdt)
-#         ax2.plot(dydt)
-#         ax2.set_title('Velocity (km/s) over time')
-# 
-# =============================================================================
+
         plt.show()
         
 #%% Now it's time to run the code!
