@@ -14,6 +14,7 @@ import torch.nn as nn
 from torch import optim
 import matplotlib.pyplot as plt
 import random as r
+import math
 
 logger = logging.getLogger(__name__)
 
@@ -136,7 +137,7 @@ class Simulation(nn.Module):
 
     @staticmethod
     def initialize_state():
-        N=4 # how many do we want to optimize for?
+        N=5 # how many do we want to optimize for?
         start_location_lim=.1 # how off-axis side-to-side or up-and-down can it start?
         stdev=start_location_lim/3 # Because 99%+ of the random things should be within this limit.
         state=[[r.gauss(0,stdev), 1-r.gauss(0,stdev),0., 0.]]  # INITIALIZE in km. SO the orignal (x,y) starting point is (0,1) and we're adding some noise to this initial state.
@@ -179,6 +180,7 @@ class Optimize:
             loss = self.step()
             self.loss=loss
             print('[%d] loss: %.3f' % (epoch + 1, loss))
+            conv_loss.append(math.log(loss.detach().numpy()))
             self.visualize(epoch+1)
 
     def visualize(self, ep):
@@ -204,6 +206,7 @@ class Optimize:
         
 #%% Now it's time to run the code!
 
+conv_loss=[] # initialize
 T = 100  # number of time steps
 dim_input = 4  # STATE SPACE dimensions
 dim_hidden = 8  # latent dimensions
@@ -212,4 +215,10 @@ d = Dynamics()  # define dynamics
 c = Controller(dim_input, dim_hidden, dim_output)  # define controller
 s = Simulation(c, d, T)  # define simulation
 o = Optimize(s)  # define optimizer
-o.train(50)  # solve the optimization problem
+o.train(20)  # solve the optimization problem
+#%%
+plt.plot(conv_loss)
+plt.ylabel('Convergence of Loss')
+plt.xlabel('Iteration')
+plt.title('Gradient Descent results')
+plt.xticks(np.arange(0, len(conv_loss)+1, 5))
