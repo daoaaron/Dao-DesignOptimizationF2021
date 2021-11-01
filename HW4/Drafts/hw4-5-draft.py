@@ -6,8 +6,7 @@ Created on Thu Oct 28 12:23:13 2021
 """
 
 import numpy as np
-import math
-from matplotlib import pyplot as pp
+from matplotlib import pyplot as plt
 
 def objfun(x):
     x1=x[0]
@@ -62,12 +61,10 @@ def solve(x):  # Takes in intermediate x value [dk, sk0], gives final x value [d
 x0=np.array([1, 2, 3])  # Hard coded: x2 and x3 are state variables
 
 e=10**(-3)
-#k=0
 
 x_store=[x0]
 err=[]
 
-#%%
 
 while np.linalg.norm(Dfdd(x_store[-1])) > e:
     x=x_store[-1]
@@ -89,4 +86,5 @@ while np.linalg.norm(Dfdd(x_store[-1])) > e:
     x_store.append(x)
     
 print(x_store[-1])
-pp.plot(err)
+plt.plot(err)
+plt.title('Error')
