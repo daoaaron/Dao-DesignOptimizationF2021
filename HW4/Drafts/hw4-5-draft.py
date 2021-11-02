@@ -4,7 +4,7 @@ Created on Thu Oct 28 12:23:13 2021
 
 @author: Knight
 """
-
+import math
 import numpy as np
 from matplotlib import pyplot as plt
 
@@ -57,8 +57,13 @@ def solve(x):  # Takes in intermediate x value [dk, sk0], gives final x value [d
 
         
 #%% THE LOOP
+x1=0
+x3= 1/12 * ( (600-170*(x1**2))**(1/2) +10*x1)
+x2= x3-x1
 
-x0=np.array([1, 2, 3])  # Hard coded: x2 and x3 are state variables
+x0=np.array([x1, x2, x3])  # NEEDS TO SATISFY h=0! Hard coded: x2 and x3 are state variables
+
+
 
 e=10**(-3)
 
@@ -71,7 +76,7 @@ while np.linalg.norm(Dfdd(x_store[-1])) > e:
     dfdd=Dfdd(x)
     print('x is ' + str(x))
     print('dfdd is ' + str(np.linalg.norm(dfdd)))
-    err.append(np.linalg.norm(dfdd))  # At the beginning of the iteration, what's the error?
+    err.append( math.log( np.linalg.norm(dfdd)))  # At the beginning of the iteration, what's the error?
     # 4.1
     a= linesearch(dfdd, x)
     # 4.2
