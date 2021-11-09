@@ -75,6 +75,7 @@ while np.linalg.norm(Dfdd(x_store[-1])) > e:
     x=x_store[-1]
     dfdd=Dfdd(x)
     print('x is ' + str(x))
+    print()
     print('dfdd is ' + str(np.linalg.norm(dfdd)))
     err.append( math.log( np.linalg.norm(dfdd)))  # At the beginning of the iteration, what's the error?
     # 4.1
