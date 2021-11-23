@@ -29,6 +29,16 @@ def dLdx(x, mu):
     bottom=2*(mu1+mu2+1)*x2 - 2*(mu2+3)
     return np.array([[top],[bottom]])
 
+def QP():
+    return
+
+def linesearch():
+    return
+
+def BFGS():
+    return
+
+
 #%%
 W0=np.identity(2)
 W_store=[W0]
@@ -40,6 +50,8 @@ x0=np.array([1,1])
 x_store=[x0]
 #%%
 
-while dLdx(x_store[-1],mu)>e:
-    lol=3
+while (np.linalg.norm(dLdx(x_store[-1],mu)))>e:
+    x=x_store[-1]
+    
+    
     
