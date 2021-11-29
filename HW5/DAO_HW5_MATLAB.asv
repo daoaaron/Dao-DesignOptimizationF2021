@@ -43,7 +43,7 @@ g = g(solution.x(:,end))
 f= f(solution.x(:,end))
 
 %%
-% Note that answer printout appears at the end of this document.
+Note 
 
 %% Funciton Library
 % SQP
