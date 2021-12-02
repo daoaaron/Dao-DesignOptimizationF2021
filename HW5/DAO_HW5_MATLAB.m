@@ -1,7 +1,8 @@
 %% DAO MAE 598 HW5.
 %%
 % Template code provided by Professor Yi Ren.
-%% HOUSEKEEPING
+% Please see MATLAB code in .m file in GitHub.
+%% Housekeeping
 clc; clear; 
 close all; format long
 
@@ -17,10 +18,10 @@ dg = @(x)[-2 2*x(2); 5 2*(x(2)-1)] ;  % Equations for all dgs!
 
 
 
-%% Optimization settings
+%% Optimization settings.
 opt.alg = 'myqp'; % 'myqp' or 'matlabqp'. NOTE opt is a STRUCTURE as well.
 
-
+f_store=[];
 opt.linesearch = true; % false or true
 
 % TOLERANCE
@@ -36,18 +37,36 @@ if max(g(x0)>0)
 end
 
 
-%% SOLUTION.
+%% Solving.
 solution = mysqp(f, df, g, dg, x0, opt);
-optimal_x = solution.x(:,end)
-g = g(solution.x(:,end))
-f= f(solution.x(:,end))
+optimal_x = solution.x(:,end);
+g_val = g(solution.x(:,end));
+f_val = f(solution.x(:,end));
 
-%%
-% Note that answer printout appears at the end of this document.
+% Functions for Visualization
+g1=@(x) sqrt(2*x);
+g2=@(x)sqrt((-5*x+15))+1;
+f3d = @(x,y) x.^2+(y-3).^2; 
+close all
+figure
+x=0:.05:4;
+y=0:.05:4;
+[X,Y]=meshgrid(x,y);
 
-%% Funciton Library
-% SQP
-function solution = mysqp(f, df, g, dg, x0, opt)
+figure(1); hold on
+plot(solution.x(1,:),solution.x(2,:))
+plot(solution.x(1,end),solution.x(2,end),'*')
+fplot(g1)
+fplot(g2)
+contour(X,Y,f3d(X,Y),30,'--')
+xlim([0 3]);ylim([0 2.5])
+legend('Solution Trajectory','Optimal Solution','g_1','g_2','Objective Contour','Location','southeast')
+title('Evolution of Optimal Solution')
+xlabel('x_1');ylabel('x_2')
+
+sprintf('Optimal solution at x1 = (%.5g, %.5g). g = (%.3g, %.3g), and f = %.5g',optimal_x(1),optimal_x(2),g_val(1),g_val(2),f_val)
+%% Funciton Library.
+function solution = mysqp(f, df, g, dg, x0, opt) % SQP
     % STEP 1 -- Set initial conditions
     x = x0; % Set current solution to the initial guess
     % STORE x. 
@@ -88,7 +107,7 @@ function solution = mysqp(f, df, g, dg, x0, opt)
         % STEP 3.3 -- Update the current solution using the step
         dx = a*s;               % Step for x
         x = x + dx;             % Update x using the step
-        
+
         % STEP 3.4 -- BFGS UPDATE
         
             % Compute y_k
