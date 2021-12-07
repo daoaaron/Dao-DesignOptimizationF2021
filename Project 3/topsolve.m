@@ -9,7 +9,12 @@ penal=3;
 rmin=1.5;
 ft=1;
 
-%function topsolve(nelx,nely,volfrac,penal,rmin,ft)
+for i=1:100
+    loc=2*i;
+    topsolve2(nelx,nely,volfrac,penal,rmin,ft,loc)
+end
+%%
+function topsolve2(nelx,nely,volfrac,penal,rmin,ft,loc)
 %% MATERIAL PROPERTIES
 E0 = 1;
 Emin = 1e-9; % Some small number.
@@ -31,7 +36,7 @@ iK = reshape(kron(edofMat,ones(8,1))',64*nelx*nely,1);
 jK = reshape(kron(edofMat,ones(1,8))',64*nelx*nely,1);
 
 %% DEFINE LOADS AND SUPPORTS (HALF MBB-BEAM)
-F = sparse(2*(nely+1)*(nelx+1),1);
+F = sparse(2*(nely+1)*(nelx+1),1); F(loc,1) = 1;
 U = sparse(2*(nely+1)*(nelx+1),1);
 fixeddofs = union([1:2:2*(nely+1)],[2*(nelx+1)*(nely+1)]); % Which nodes are fixed in X DIRECTION, and which are fixed in Y DIRECTION.
 alldofs = [1:2*(nely+1)*(nelx+1)]; % All possible nodes.
@@ -84,7 +89,7 @@ while change > 0.01
             K(edof,edof) = K(edof,edof) + x(ely,elx)^penal*KE;
         end
     end
-    F(2,1) = -1;
+    
     U(freedofs,:) = K(freedofs,freedofs)\F(freedofs,:);
     U(fixeddofs,:)= 0;
   
@@ -130,6 +135,8 @@ while change > 0.01
 
   %% PLOT DENSITIES
   %colormap(gray); imagesc(1-xPhys); caxis([0 1]); axis equal; axis off; drawnow;
-  colormap(gray); imagesc(-x); axis equal; axis tight; axis off;pause(1e-6);
+  %colormap(gray); imagesc(-x); axis equal; axis tight; axis off;pause(1e-6);
 end
-%end
+colormap(gray); imagesc(-x); title(sprintf('Load at element %.5g',loc/2)); axis equal; axis tight; axis off;pause(1e-6);
+
+end
