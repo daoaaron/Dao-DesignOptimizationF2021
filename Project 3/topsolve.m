@@ -14,14 +14,14 @@ for i=1:nelx
     loc=1+(nely*(i-1));  % Sweep across top beam... so 1, nely+1, 2*nely+1, 3*nely+1...
     top_solve(nelx,nely,volfrac,penal,rmin,ft,loc);
     framecount=framecount+1;
-    frames(framecount)=getframe;
+    %frames(framecount)=getframe;
     im{framecount}=frame2im(getframe);
 end
 
 
 %% Outputting as GIF
 
-v=VideoWriter('mov');open(v);writeVideo(v,frames);close(v);
+%v=VideoWriter('mov');open(v);writeVideo(v,frames);close(v);
 
 filename = 'testAnimated.gif';
 for idx = 1:framecount
