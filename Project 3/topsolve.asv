@@ -8,38 +8,17 @@ volfrac=.5;
 penal=3;
 rmin=1.5;
 ft=1;
-framecount=0;
 
-for i=1:nelx
-    loc=1+(nely*(i-1));  % Sweep across top beam... so 1, nely+1, 2*nely+1, 3*nely+1...
-    top_solve(nelx,nely,volfrac,penal,rmin,ft,loc);
-    framecount=framecount+1;
-    frames(framecount)=getframe;
-    im{framecount}=frame2im(getframe);
+for i=1:100
+    loc=2*i;
+    topsolve2(nelx,nely,volfrac,penal,rmin,ft,loc)
 end
-
-
-%% Outputting as GIF
-
-v=VideoWriter('mov');open(v);writeVideo(v,frames);close(v);
-
-filename = 'testAnimated.gif';
-for idx = 1:framecount
-    [A,map] = rgb2ind(im{idx},256);
-    if idx == 1
-        imwrite(A,map,filename,'gif','LoopCount',Inf,'DelayTime',.5);
-    else
-        imwrite(A,map,filename,'gif','WriteMode','append','DelayTime',.5);
-    end
-end
-
-%% Optimization Problem Solver
-function top_solve(nelx,nely,volfrac,penal,rmin,ft,loc) % output frames
+%% 
+function topsolve2(nelx,nely,volfrac,penal,rmin,ft,loc)
 %% MATERIAL PROPERTIES
 E0 = 1;
 Emin = 1e-9; % Some small number.
 nu = 0.3;
-
 
 %% PREPARE for FINITE ELEMENT ANALYSIS
 % stiffness matrix
@@ -57,7 +36,7 @@ iK = reshape(kron(edofMat,ones(8,1))',64*nelx*nely,1);
 jK = reshape(kron(edofMat,ones(1,8))',64*nelx*nely,1);
 
 %% DEFINE LOADS AND SUPPORTS (HALF MBB-BEAM)
-F = sparse(2*(nely+1)*(nelx+1),1); F(loc*2,1) = -1; % Locate the y-component of the "LOC" node
+F = sparse(2*(nely+1)*(nelx+1),1); F(loc,1) = 1;
 U = sparse(2*(nely+1)*(nelx+1),1);
 fixeddofs = union([1:2:2*(nely+1)],[2*(nelx+1)*(nely+1)]); % Which nodes are fixed in X DIRECTION, and which are fixed in Y DIRECTION.
 alldofs = [1:2*(nely+1)*(nelx+1)]; % All possible nodes.
@@ -151,13 +130,13 @@ while change > 0.01
   x = xnew;
 
   %% PRINT RESULTS
-  %fprintf(' It.:%5i Obj.:%11.4f Vol.:%7.3f ch.:%7.3f\n',loop,c, ...
-   % mean(x(:)),change);
+  fprintf(' It.:%5i Obj.:%11.4f Vol.:%7.3f ch.:%7.3f\n',loop,c, ...
+    mean(x(:)),change);
 
-  %% PLOT Evolution of DENSITIES
+  %% PLOT DENSITIES
+  %colormap(gray); imagesc(1-xPhys); caxis([0 1]); axis equal; axis off; drawnow;
   %colormap(gray); imagesc(-x); axis equal; axis tight; axis off;pause(1e-6);
 end
-colormap(gray); imagesc(-x); title(sprintf('Downward load at Node %.5g',loc)); axis equal; axis tight; axis off;pause(1e-6);drawnow;
-
+colormap(gray); imagesc(-x); title(sprintf('Load at element %.5g',loc/2)); axis equal; axis tight; axis off;pause(1e-6);
 
 end
